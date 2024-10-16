@@ -1,0 +1,41 @@
+import ipaddress
+import socket
+
+def check_packet(packet):
+    """Checks if a packet matches the firewall rules."""
+
+    # Extract relevant information from the packet
+    source_ip = ipaddress.ip_address(packet['source_ip'])
+    destination_ip = ipaddress.ip_address(packet['destination_ip'])
+    source_port = packet['source_port']
+    destination_port = packet['destination_port']
+    protocol = packet['protocol']
+
+    # Define firewall rules (adjust as needed)
+    allowed_ips = [ipaddress.ip_address('192.168.1.0/24')]  # Example allowed IP range
+    blocked_ports = [22, 80, 443]  # Example blocked ports
+
+    # Check if the packet matches any allowed rules
+    if source_ip in allowed_ips:
+        return True
+    if destination_ip in allowed_ips:
+        return True
+    if protocol == 'TCP' and destination_port not in blocked_ports:
+        return True
+
+    # If no rules match, block the packet
+    return False
+
+# Example usage
+packet_data = {
+    'source_ip': '10.0.0.1',
+    'destination_ip': '192.168.1.100',
+    'source_port': 1234,
+    'destination_port': 80,
+    'protocol': 'TCP'
+}
+
+if check_packet(packet_data):
+    print("Packet allowed")
+else:
+    print("Packet blocked")
